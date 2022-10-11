@@ -1,7 +1,7 @@
 # DFIR-tools
 "We have DFIR at home"
 
-A collection of small tools related to digital forensics.
+A collection of small tools related to digital forensics (_updated little by little_)
 
 
 ## volxlsx
@@ -9,8 +9,8 @@ A collection of small tools related to digital forensics.
 A simple script relying on Volatility 3 and Pandas. It runs a set of Volatility 3 plugins against a Windows memory dump and put all the results in a single XLSX file, so the analysis can be done through a "portable case" and with Excel filtering capacity (also it's convenient for copy/pasting into a timeline maybe?).
 
 #### Requirements
-Volatility 3 needs to be available and installed following the available procedure: https://github.com/volatilityfoundation/volatility3
-To make sure that everything is alright, vol.exe needs to be available from CLI.
+Volatility 3 needs to be available, built and installed following the available procedure: https://github.com/volatilityfoundation/volatility3
+To make sure that everything is alright, a simple test consisting on running "vol.exe --help" from PowerShell CLI should do the trick. 
 
 Runs on Windows only (tested on Win10). 
 Only parses Windows memory dumps (tested on dumps made with WinPMem).
