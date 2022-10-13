@@ -21,8 +21,6 @@ You need to install the Pandas library:
 pip install pandas
 ```
 
-Disclaimer: Since memory parsing is somehow not the most stable process in the IT world, you can expect that some modules will fail depending on the memory dump. So be careful with the results. You can check the console to see where Volatility encountered errors. It will either skip a whole module or you will get partial results (if the last line of a table is empty on Excel, you can assume that the module crashed before the end).
-
 
 #### Usage
 
@@ -43,3 +41,5 @@ For now, only the following modules are run (probably more to come later, let's 
 - windows.driverirp.DriverIrp
 - windows.dlllist.DllList
 - timeliner.Timeliner
+
+Disclaimer: Since memory parsing is somehow not the most stable process in the IT world, you can expect that some modules will fail depending on the memory dump. So be careful with the results. You can check the console to see where Volatility encountered errors. It will either skip a whole module or you will get partial results (if the last line of a table is empty on Excel, you can assume that the module crashed before the end).
