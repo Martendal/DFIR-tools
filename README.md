@@ -15,6 +15,12 @@ To make sure that everything is alright, a simple test consisting on running "vo
 Runs on Windows only (tested on Win10). 
 Only parses Windows memory dumps (tested on dumps made with WinPMem).
 
+You need to install the Pandas library:
+
+```
+pip install pandas
+```
+
 Disclaimer: Since memory parsing is somehow not the most stable process in the IT world, you can expect that some modules will fail depending on the memory dump. So be careful with the results. You can check the console to see where Volatility encountered errors. It will either skip a whole module or you will get partial results (if the last line of a table is empty on Excel, you can assume that the module crashed before the end).
 
 
