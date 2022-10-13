@@ -1,5 +1,4 @@
 # DFIR-tools
-"We have DFIR at home"
 
 A collection of small tools related to digital forensics (_updated little by little_)
 
