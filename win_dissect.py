@@ -192,7 +192,18 @@ def create_database_alt(root, db_path):
 
 
 ############################################################################### Reporting ################################################################
-def xlsx_preparer(df,writer,sheetname):
+def xlsx_preparer(df,writer,sheetname,workbook):
+	####### Bookmarking colors #########
+	# Light red fill for "evidence"
+	format1 = workbook.add_format({'bg_color':   '#FFC7CE'})
+
+	# Light yellow fill for "of interest"
+	format2 = workbook.add_format({'bg_color':   '#FFEB9C'})
+
+	# Green fill for "bookmark"
+	format3 = workbook.add_format({'bg_color':   '#C6EFCE'})
+	####################################
+
 	(max_row, max_col) = df.shape
 	df.insert(0,'Tag',[None]*max_row)
 	df.to_excel(writer, sheet_name=sheetname, startrow=1, header=False, index=False)
@@ -207,49 +218,49 @@ def xlsx_preparer(df,writer,sheetname):
 
 
 
-def cleared_audit_log(con,writer):
+def cleared_audit_log(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=1102)", con)
 		df2 = pd.read_sql_query("SELECT * from \"System.evtx.csv\" WHERE (EventId=102)", con)
 		frame = [df,df2]
 		result = pd.concat(frame)
 		result['TimeCreated'] = pd.to_datetime(result['TimeCreated'])
-		xlsx_preparer(result,writer,'Event log cleared')
+		xlsx_preparer(result,writer,'Event log cleared',workbook)
 	except Exception as e:
 		pass
 
-def logon_events(con, writer):
+def logon_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4768) OR (EventId=4769) OR (EventId=4770) OR (EventId=4771) OR (EventId=4776) OR (EventId=4624) OR (EventId=4625) OR (EventId=4634) OR (EventId=4647) OR (EventId=4648) OR (EventId=4672) OR (EventId=4778) OR (EventId=4779)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'Logon Events')
+		xlsx_preparer(df,writer,'Logon Events',workbook)
 	except Exception as e:
 		pass
 
 
-def account_management_events(con, writer):
+def account_management_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4720) OR (EventId=4722) OR (EventId=4723) OR (EventId=4724) OR (EventId=4725) OR (EventId=4726) OR (EventId=4727) OR (EventId=4728) OR (EventId=4729) OR (EventId=4730) OR (EventId=4731) OR (EventId=4732) OR (EventId=4733) OR (EventId=4734) OR (EventId=4735) OR (EventId=4737) OR (EventId=4738) OR (EventId=4741) OR (EventId=4742) OR (EventId=4743) OR (EventId=4754) OR (EventId=4755) OR (EventId=4756) OR (EventId=4757) OR (EventId=4758) OR (EventId=4798) OR (EventId=4799)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'Account mgt Events')
+		xlsx_preparer(df,writer,'Account mgt Events',workbook)
 	except Exception as e:
 		pass	
 	
 
-def scheduled_tasks_events(con, writer):
+def scheduled_tasks_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4698) OR (EventId=4699) OR (EventId=4700) OR (EventId=4701) OR (EventId=4702)", con)
 		df2 = pd.read_sql_query("SELECT * from \"Microsoft-Windows-TaskScheduler%4Operational.evtx.csv\" WHERE (EventId=106) OR (EventId=140) OR (EventId=141) OR (EventId=200) OR (EventId=201)", con)
 		frame = [df,df2]
 		result = pd.concat(frame)
 		result['TimeCreated'] = pd.to_datetime(result['TimeCreated'])
-		xlsx_preparer(result,writer,'Sched. Tasks Events')
+		xlsx_preparer(result,writer,'Sched. Tasks Events',workbook)
 	except Exception as e:
 		pass
 
-def RDP_events(con, writer):
+def RDP_events(con, writer,workbook):
 	try:
-		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4778) OR (EventId=4779) OR (EventId=4624)", con)
+		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4778) OR (EventId=4779) OR (EventId=4624 AND \"PayloadData2\" LIKE 'LogonType 10')", con)
 		try:
 			df2 = pd.read_sql_query("SELECT * from \"RemoteDesktopServices-RDPCoreTS%4Operational.evtx.csv\" WHERE (EventId=131)", con)
 		except Exception as e:
@@ -261,46 +272,46 @@ def RDP_events(con, writer):
 		frame = [df,df2,df3]
 		result = pd.concat(frame)
 		result['TimeCreated'] = pd.to_datetime(result['TimeCreated'])
-		xlsx_preparer(result,writer,'RDP Events')
+		xlsx_preparer(result,writer,'RDP Events',workbook)
 	except Exception as e:
 		pass
 
-def application_installation_events(con, writer):
+def application_installation_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Application.evtx.csv\" WHERE (EventId=1033) OR (EventId=1034) OR (EventId=11707) OR (EventId=11708) OR (EventId=11724)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'App Install Events')
+		xlsx_preparer(df,writer,'App Install Events',workbook)
 	except Exception as e:
 		pass
 
-def services_events(con, writer):
+def services_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"System.evtx.csv\" WHERE (EventId=7034) OR (EventId=7035) OR (EventId=7036) OR (EventId=7040) OR (EventId=7045)", con)
 		df2 = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4697)", con)
 		frame = [df,df2]
 		result = pd.concat(frame)
 		result['TimeCreated'] = pd.to_datetime(result['TimeCreated'])
-		xlsx_preparer(result,writer,'Services Events')
+		xlsx_preparer(result,writer,'Services Events',workbook)
 	except Exception as e:
 		pass
 
-def WMI_events(con, writer):
+def WMI_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Microsoft-Windows-WMI-Activity%4Operational.evtx.csv\" WHERE (EventId=5857) OR (EventId=5858) OR (EventId=5859) OR (EventId=5860) OR (EventId=5861)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'WMI Events')
+		xlsx_preparer(df,writer,'WMI Events',workbook)
 	except Exception as e:
 		pass
 
-def PowerShell_events(con, writer):
+def PowerShell_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Microsoft-Windows-PowerShell%4Operational.evtx.csv\" WHERE (EventId=4103) OR (EventId=4104)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'PowerShell Events')
+		xlsx_preparer(df,writer,'PowerShell Events',workbook)
 	except Exception as e:
 		pass
 
-def Process_events(con, writer):
+def Process_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=4688) OR (EventId=4689)", con)
 		df2 = pd.read_sql_query("SELECT * from \"Application.evtx.csv\" WHERE (EventId=1000) OR (EventId=1001) OR (EventId=1002)", con)
@@ -308,19 +319,19 @@ def Process_events(con, writer):
 		frame = [df,df2,df3]
 		result = pd.concat(frame)
 		result['TimeCreated'] = pd.to_datetime(result['TimeCreated'])
-		xlsx_preparer(result,writer,'Process Events')
+		xlsx_preparer(result,writer,'Process Events',workbook)
 	except Exception as e:
 		pass
 
-def Network_Share_events(con, writer):
+def Network_Share_events(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Security.evtx.csv\" WHERE (EventId=5140) OR (EventId=5142) OR (EventId=5143) OR (EventId=5144) OR (EventId=5145)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'Share Events')
+		xlsx_preparer(df,writer,'Share Events',workbook)
 	except Exception as e:
 		pass
 
-def amcache_program_presence(con, writer):
+def amcache_program_presence(con, writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Amcache_UnassociatedFileEntries.csv\"", con)
 		df2 = pd.read_sql_query("SELECT * from \"Amcache_AssociatedFileEntries.csv\"", con)
@@ -328,51 +339,51 @@ def amcache_program_presence(con, writer):
 		result = pd.concat(frame)
 		result['FileKeyLastWriteTimestamp'] = pd.to_datetime(result['FileKeyLastWriteTimestamp'])
 		result['LinkDate'] = pd.to_datetime(result['LinkDate'])
-		xlsx_preparer(result,writer,'Present programs (amcache)')
+		xlsx_preparer(result,writer,'Present programs (amcache)',workbook)
 	except Exception as e:
 		pass
 	
 	
 
-def recyclebin(con,writer):
+def recyclebin(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"RecycleBin.csv\"", con)
 		df['DeletedOn'] = pd.to_datetime(df['DeletedOn'])
-		xlsx_preparer(df,writer,'RecycleBin')
+		xlsx_preparer(df,writer,'RecycleBin',workbook)
 	except Exception as e:
 		pass
 	
 
-def prefetch_program_execution(con,writer):
+def prefetch_program_execution(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"prefetch_Timeline.csv\"", con)
 		df['RunTime'] = pd.to_datetime(df['RunTime'])
-		xlsx_preparer(df,writer,'Program execution (prefetch)')
+		xlsx_preparer(df,writer,'Program execution (prefetch)',workbook)
 	except Exception as e:
 		pass
 	
 
-def amcache_plugged_devices(con,writer):
+def amcache_plugged_devices(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Amcache_DevicePnps.csv\"", con)
 		df['FileKeyLastWriteTimestamp'] = pd.to_datetime(df['FileKeyLastWriteTimestamp'])
-		xlsx_preparer(df,writer,'Amcache plugged devices')
+		xlsx_preparer(df,writer,'Amcache plugged devices',workbook)
 	except Exception as e:
 		pass
 	
 
-def drivers(con,writer):
+def drivers(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Amcache_DriveBinaries.csv\"", con)
 		df['FileKeyLastWriteTimestamp'] = pd.to_datetime(df['FileKeyLastWriteTimestamp'])
 		df['DriverTimeStamp'] = pd.to_datetime(df['DriverTimeStamp'])
 		df['DriverLastWriteTime'] = pd.to_datetime(df['DriverLastWriteTime'])
-		xlsx_preparer(df,writer,'Amcache drivers')
+		xlsx_preparer(df,writer,'Amcache drivers',workbook)
 	except Exception as e:
 		pass
 	
 
-def installed_programs(con,writer):
+def installed_programs(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Amcache_ProgramEntries.csv\"", con)
 		df['FileKeyLastWriteTimestamp'] = pd.to_datetime(df['FileKeyLastWriteTimestamp'])
@@ -380,12 +391,12 @@ def installed_programs(con,writer):
 		df['InstallDate'] = pd.to_datetime(df['InstallDate'])
 		df['InstallDateMsi'] = pd.to_datetime(df['InstallDateMsi'])
 		df['InstallDateFromLinkFile'] = pd.to_datetime(df['InstallDateFromLinkFile'])
-		xlsx_preparer(df,writer,'Amcache installed programs')
+		xlsx_preparer(df,writer,'Amcache installed programs',workbook)
 	except Exception as e:
 		pass
 	
 
-def shortcuts(con,writer):
+def shortcuts(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"lnk.csv\"", con)
 		df['SourceCreated'] = pd.to_datetime(df['SourceCreated'])
@@ -395,97 +406,97 @@ def shortcuts(con,writer):
 		df['TargetModified'] = pd.to_datetime(df['TargetModified'])
 		df['TargetAccessed'] = pd.to_datetime(df['TargetAccessed'])
 		df['TrackerCreatedOn'] = pd.to_datetime(df['TrackerCreatedOn'])
-		xlsx_preparer(df,writer,'Shortcuts')
+		xlsx_preparer(df,writer,'Shortcuts',workbook)
 	except Exception as e:
 		pass
 	
 
-def service_crash(con,writer):
+def service_crash(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"System.evtx.csv\" WHERE (EventId=7034)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'Service crash')
+		xlsx_preparer(df,writer,'Service crash',workbook)
 	except Exception as e:
 		pass
 	
 
-def application_error(con,writer):
+def application_error(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * from \"Application.evtx.csv\" WHERE (EventId=1000) OR (EventId=1001) OR (EventId=1002)", con)
 		df['TimeCreated'] = pd.to_datetime(df['TimeCreated'])
-		xlsx_preparer(df,writer,'Application error')
+		xlsx_preparer(df,writer,'Application error',workbook)
 	except Exception as e:
 		pass
 	
 	
 
-def registry_program_execution(con,writer):
+def registry_program_execution(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"registry.csv\" WHERE \"Category\" LIKE 'Program Execution'", con)
 		df['LastWriteTimestamp'] = pd.to_datetime(df['LastWriteTimestamp'])
-		xlsx_preparer(df,writer,'Program execution (registry)')
+		xlsx_preparer(df,writer,'Program execution (registry)',workbook)
 	except Exception as e:
 		pass
 
 
-def registry_network_shares(con,writer):
+def registry_network_shares(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"registry.csv\" WHERE \"Category\" LIKE 'Network Shares'", con)
 		df['LastWriteTimestamp'] = pd.to_datetime(df['LastWriteTimestamp'])
-		xlsx_preparer(df,writer,'Network shares (registry)')
+		xlsx_preparer(df,writer,'Network shares (registry)',workbook)
 	except Exception as e:
 		pass
 
-def registry_system_info(con,writer):
+def registry_system_info(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"registry.csv\" WHERE \"Category\" LIKE 'System Info'", con)
 		df['LastWriteTimestamp'] = pd.to_datetime(df['LastWriteTimestamp'])
-		xlsx_preparer(df,writer,'System info')
+		xlsx_preparer(df,writer,'System info',workbook)
 	except Exception as e:
 		pass
 
 
-def registry_third_party_applications(con,writer):
+def registry_third_party_applications(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"registry.csv\" WHERE \"Category\" LIKE 'Third Party Applications'", con)
 		df['LastWriteTimestamp'] = pd.to_datetime(df['LastWriteTimestamp'])
-		xlsx_preparer(df,writer,'3rd party applications')
+		xlsx_preparer(df,writer,'3rd party applications',workbook)
 	except Exception as e:
 		pass
 
 
-def registry_user_activity(con,writer):
+def registry_user_activity(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"registry.csv\" WHERE \"Category\" LIKE 'User Activity'", con)
 		df['LastWriteTimestamp'] = pd.to_datetime(df['LastWriteTimestamp'])
-		xlsx_preparer(df,writer,'User Activity (registry)')
+		xlsx_preparer(df,writer,'User Activity (registry)',workbook)
 	except Exception as e:
 		pass
 
-def registry_vss_info(con,writer):
+def registry_vss_info(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"registry.csv\" WHERE \"Category\" LIKE 'Volume Shadow Copies'", con)
 		df['LastWriteTimestamp'] = pd.to_datetime(df['LastWriteTimestamp'])
-		xlsx_preparer(df,writer,'VSS info (registry)')
+		xlsx_preparer(df,writer,'VSS info (registry)',workbook)
 	except Exception as e:
 		pass
 
 
 
-def srum_network_usages(con,writer):
+def srum_network_usages(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"SrumECmd_NetworkUsages_Output.csv\"", con)
 		df['Timestamp'] = pd.to_datetime(df['Timestamp'])
-		xlsx_preparer(df,writer,'Network usage')
+		xlsx_preparer(df,writer,'Network usage',workbook)
 	except Exception as e:
 		pass
 
 
-def srum_app_resource_use(con,writer):
+def srum_app_resource_use(con,writer,workbook):
 	try:
 		df = pd.read_sql_query("SELECT * FROM \"SrumECmd_AppResourceUseInfo_Output.csv\"", con)
 		df['Timestamp'] = pd.to_datetime(df['Timestamp'])
-		xlsx_preparer(df,writer,'Apps resource use')
+		xlsx_preparer(df,writer,'Apps resource use',workbook)
 	except Exception as e:
 		pass
 
@@ -496,42 +507,30 @@ def create_xlsx_report(db_path, output_report, Logger):
 	Logger.info("Creating XLSX report.")
 	with pd.ExcelWriter(output_report, engine="xlsxwriter") as writer:  
 		workbook = writer.book
-
-		####### Bookmarking colors #########
-		# Light red fill for "evidence"
-		format1 = workbook.add_format({'bg_color':   '#FFC7CE'})
-
-		# Light yellow fill for "of interest"
-		format2 = workbook.add_format({'bg_color':   '#FFEB9C'})
-
-		# Green fill for "bookmark"
-		format3 = workbook.add_format({'bg_color':   '#C6EFCE'})
-		####################################
-
-		cleared_audit_log(con,writer)
-		logon_events(con, writer)
-		account_management_events(con, writer)
-		scheduled_tasks_events(con, writer)
-		RDP_events(con, writer)
-		application_installation_events(con, writer)
-		services_events(con, writer)
-		WMI_events(con, writer)
-		PowerShell_events(con, writer)
-		Process_events(con, writer)
-		Network_Share_events(con, writer)
-		amcache_program_presence(con,writer)
-		recyclebin(con,writer)
-		prefetch_program_execution(con,writer)
-		registry_program_execution(con,writer)
-		amcache_plugged_devices(con,writer)
-		drivers(con,writer)
-		installed_programs(con,writer)
-		shortcuts(con,writer)
-		registry_program_execution(con,writer)
-		registry_system_info(con,writer)
-		registry_network_shares(con,writer)
-		registry_third_party_applications(con,writer)
-		srum_network_usages(con,writer)
+		cleared_audit_log(con,writer,workbook)
+		logon_events(con, writer,workbook)
+		account_management_events(con, writer,workbook)
+		scheduled_tasks_events(con, writer,workbook)
+		RDP_events(con, writer,workbook)
+		application_installation_events(con, writer,workbook)
+		services_events(con, writer,workbook)
+		WMI_events(con, writer,workbook)
+		PowerShell_events(con, writer,workbook)
+		Process_events(con, writer,workbook)
+		Network_Share_events(con, writer,workbook)
+		amcache_program_presence(con,writer,workbook)
+		recyclebin(con,writer,workbook)
+		prefetch_program_execution(con,writer,workbook)
+		registry_program_execution(con,writer,workbook)
+		amcache_plugged_devices(con,writer,workbook)
+		drivers(con,writer,workbook)
+		installed_programs(con,writer,workbook)
+		shortcuts(con,writer,workbook)
+		registry_program_execution(con,writer,workbook)
+		registry_system_info(con,writer,workbook)
+		registry_network_shares(con,writer,workbook)
+		registry_third_party_applications(con,writer,workbook)
+		srum_network_usages(con,writer,workbook)
 
 
 def convert_target(target_root,output_dir,db_path):
@@ -546,7 +545,6 @@ def convert_target(target_root,output_dir,db_path):
 	registries_folder = target_root
 
 	Logger.info("Converting artefacts to CSV.")
-
 	evtx_to_csv(evtx_folder, output_dir)
 	#evtx_to_csv_partial(evtx_folder, output_dir)
 	prefetch_to_csv(prefetch_folder, output_dir)
@@ -589,7 +587,7 @@ def main():
 	output_report = output_dir+"\\"+hostname+".xlsx"
 
 
-	Logger.info("Launching Win_Dissect, go make yourself a coffee.")
+	Logger.info("Launching Win_Dissect.")
 	Logger.info("Checking if the specified output directory exists.")
 	if(not os.path.exists(output_dir)):
 		Logger.info("Creating output directory.")
