@@ -1,6 +1,6 @@
 # DFIR-tools
 
-A collection of small tools related to digital forensics (_updated little by little_)
+A small collection of tools related to digital forensics (_updated little by little_)
 
 ## Lazy_setup.ps1
 
