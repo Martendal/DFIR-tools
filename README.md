@@ -12,7 +12,7 @@ You can also read it just to follow what it contains if you want to install ever
 DISCLAIMER: Since this script downloads and installs stuff from Internet, maybe it could trigger alerts depending on your environment. So it may be better to just read the content of the script as a guideline to install everything manually. 
 
 
-## Win-Dissect
+## Win_Dissect
 
 #### Description
 A script that launches Eric Zimmerman's tools (https://ericzimmerman.github.io/#!index.md) to parse Windows artefacts to CSV, and creates a SQLite database as well as a XLSX "portable case" based on some key artefacts. 
